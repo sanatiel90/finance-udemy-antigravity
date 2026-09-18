@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String?
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  incomes       Income[]
+  expenses      Expense[]
+  subscriptions Subscription[]
+  stocks        Stock[]
+
+  @@map("users")
+}
+
+model Income {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float
+  date      DateTime
+  category  String
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+  @@map("incomes")
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  amount      Float
+  date        DateTime
+  category    String
+  subcategory String?
+  notes       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([date])
+  @@index([category])
+  @@map("expenses")
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  name            String
+  amount          Float
+  billingCycle    String   @map("billing_cycle") // "monthly" | "yearly"
+  nextBillingDate DateTime @map("next_billing_date")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([nextBillingDate])
+  @@map("subscriptions")
+}
+
+model Stock {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  ticker    String
+  shares    Float
+  avgPrice  Float?   @map("avg_price")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([ticker])
+  @@map("stocks")
+}
+
+model StockPrice {
+  id           String   @id @default(uuid())
+  ticker       String
+  date         DateTime
+  closingPrice Float    @map("closing_price")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@unique([ticker, date])
+  @@index([ticker])
+  @@index([date])
+  @@map("stock_prices")
+}
