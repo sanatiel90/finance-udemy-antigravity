@@ -142,7 +142,7 @@ export default function IncomePage() {
               Income Management
             </h1>
             <p className="text-sm text-zinc-400">
-              AAAAAATrack your salary, freelance earnings, dividends, and other revenue streams.
+              Track your salary, freelance earnings, dividends, and other revenue streams.
             </p>
           </div>
           <button
